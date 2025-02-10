@@ -1,0 +1,84 @@
+name: Full Workflow Triggers
+
+on:
+  # ✅ 1. Trigger on Push to 'main' branch
+  push:
+    branches:
+      - main
+
+  # ✅ 2. Trigger on Pull Request to 'main' branch
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+  # ✅ 3. Manual Trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select Environment"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+
+  # ✅ 4. Scheduled Trigger (Every Monday at 2 AM UTC)
+  schedule:
+    - cron: "0 2 * * 1"
+
+  # ✅ 5. Trigger on Issue Events (Runs when an issue is opened or closed)
+  issues:
+    types:
+      - opened
+      - closed
+
+  # ✅ 6. Trigger on PR Review Submission
+  pull_request_review:
+    types: [submitted]
+
+  # ✅ 7. Trigger When a Release is Published
+  release:
+    types:
+      - published
+
+  # ✅ 8. Trigger When Another Workflow Completes
+  workflow_run:
+    workflows: ["Build and Test"]  # Name of the other workflow
+    types:
+      - completed
+
+jobs:
+  example-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Print GitHub Context Variables
+        run: |
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Event Type: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Repository: ${{ github.repository }}"
+
+      - name: Conditional Job for Workflow Dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "Workflow manually triggered for ${{ github.event.inputs.environment }} environment"
+
+      - name: Conditional Job for Scheduled Runs
+        if: github.event_name == 'schedule'
+        run: echo "Scheduled workflow triggered"
+
+      - name: Conditional Job for Issue Events
+        if: github.event_name == 'issues'
+        run: echo "Issue event triggered"
+
+      - name: Conditional Job for Release Events
+        if: github.event_name == 'release'
+        run: echo "Release published event triggered"
