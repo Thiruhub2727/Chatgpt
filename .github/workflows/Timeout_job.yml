@@ -1,0 +1,14 @@
+name: Job Timeout Example
+
+on: push
+
+jobs:
+  timeout-job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # Job will be canceled if it exceeds 5 minutes
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Simulate Long Task
+        run: sleep 400  # Simulating a long-running process (will be stopped)
