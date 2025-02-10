@@ -1,0 +1,23 @@
+name: Concurrency Test
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: concurrency-test-${{ github.ref }}  # Unique per branch
+  cancel-in-progress: true  # Cancel previous runs if a new one starts
+
+jobs:
+  test-concurrency:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Start Time
+        run: echo "Workflow started at $(date)"
+
+      - name: Simulate Long-Running Task
+        run: sleep 30  # Simulate a long-running process
+
+      - name: Print End Time
+        run: echo "Workflow finished at $(date)"
