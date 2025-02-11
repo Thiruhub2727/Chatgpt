@@ -1,0 +1,16 @@
+name: JQ Example - Extract Value
+
+on: workflow_dispatch
+
+jobs:
+  extract-value:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch Repo Info
+        run: |
+          curl -s https://api.github.com/repos/github/docs > repo.json
+
+      - name: Extract Repository Name
+        run: |
+          cat repo.json | jq -r '.name'
