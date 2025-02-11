@@ -1,0 +1,10 @@
+name: Conditional Jobs
+
+on: [push, pull_request]
+
+jobs:
+  only-on-pr:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - run: echo "This job runs only for PRs."
