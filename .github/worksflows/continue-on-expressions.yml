@@ -1,0 +1,21 @@
+name: Continue on Error Example
+
+on: [push, pull_request]
+
+jobs:
+  example-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Step That May Fail
+        run: exit 1
+        continue-on-error: true  # The workflow will continue even if this step fails.
+
+      - name: Next Step After Failure
+        run: echo "This step still runs even though the previous step failed."
+
+      - name: Conditional Execution Based on Failure
+        if: ${{ failure() }}
+        run: echo "Previous step failed but workflow is still running."
