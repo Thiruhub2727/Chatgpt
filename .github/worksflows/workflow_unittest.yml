@@ -1,0 +1,28 @@
+name: Maven Unit Tests
+
+on:  
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Install Dependencies
+        run: mvn install -DskipTests
+
+      - name: Run Unit Tests
+        run: mvn test
