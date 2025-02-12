@@ -1,0 +1,72 @@
+name: GitHub Actions Expressions Demo
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  expressions-demo:
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_NAME: "MyApp"
+      BUILD_NUMBER: ${{ github.run_number }}
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Display GitHub Context Variables
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch Name: ${{ github.ref_name }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Build Number: ${{ env.BUILD_NUMBER }}"
+
+      - name: Conditional Execution - Only on Main Branch
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: echo "This step runs only on the main branch"
+
+      - name: Check If Branch Contains 'feature'
+        if: ${{ contains(github.ref_name, 'feature') }}
+        run: echo "This branch is a feature branch"
+
+      - name: Set a Default Value
+        run: echo "Triggered by: ${{ github.actor || 'unknown' }}"
+
+      - name: Use Format Function
+        run: echo "${{ format('Build {0} for {1}', env.BUILD_NUMBER, env.PROJECT_NAME) }}"
+
+      - name: Convert JSON to String and Back
+        run: |
+          echo "Original JSON: ${{ toJson(github) }}"
+          echo "Parsed Value: ${{ fromJson('{\"key\":\"value\"}').key }}"
+      
+      - name: Archive Logs
+        if: ${{ always() }} # Runs even if previous steps fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ github.run_id }}
+          path: logs/
+
+  matrix-demo:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        java: [8, 11, 17]
+    runs-on: ${{ matrix.os }}
+    name: Test on Java ${{ matrix.java }} and OS ${{ matrix.os }}
+
+    steps:
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+
+      - name: Run Tests
+        run: echo "Running tests on Java ${{ matrix.java }} and OS ${{ matrix.os }}"
