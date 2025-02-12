@@ -1,0 +1,30 @@
+name: Step Context Example
+
+on: [push]
+
+jobs:
+  step-context-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run a Command That Might Fail
+        id: risky_step
+        run: exit 1  # This step will fail
+
+      - name: Run Only If Previous Step Succeeds
+        if: ${{ steps.risky_step.outcome == 'success' }}
+        run: echo "This runs only if the previous step succeeds."
+
+      - name: Run Only If Previous Step Fails
+        if: ${{ steps.risky_step.outcome == 'failure' }}
+        run: echo "This runs because the previous step failed."
+
+      - name: Run Only If Previous Step Is Skipped
+        if: ${{ steps.risky_step.outcome == 'skipped' }}
+        run: echo "This runs if the previous step was skipped."
+
+      - name: Run Only If Previous Step Completed Regardless of Success/Failure
+        if: ${{ steps.risky_step.conclusion == 'success' || steps.risky_step.conclusion == 'failure' }}
+        run: echo "This runs if the previous step was executed (success or failure)."
