@@ -1,0 +1,39 @@
+name: Maven Unit Tests with Matrix Strategy
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [8, 11, 17]  # Test on Java 8, 11, and 17
+        os: [ubuntu-latest, windows-latest]  # Test on Ubuntu and Windows
+    name: Test on Java ${{ matrix.java }} and OS ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+          cache: 'maven'
+
+      - name: Install Dependencies
+        run: mvn install -DskipTests
+
+      - name: Run Unit Tests
+        run: mvn test
+
+      - name: Archive Test Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-java-${{ matrix.java }}-os-${{ matrix.os }}
+          path: target/surefire-reports/*.xml
